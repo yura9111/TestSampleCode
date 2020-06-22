@@ -1,0 +1,20 @@
+{
+    "name": "yura9111/currency_commission",
+    "description": "some test for CLASSIFIED",
+    "require": {
+        "php": "^7.1",
+        "ext-json": "*",
+        "phpunit/phpunit": "7.5.20"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/App/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Yura",
+            "email": "yura9111@gmail.com"
+        }
+    ]
+}
