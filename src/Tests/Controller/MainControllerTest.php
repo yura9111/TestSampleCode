@@ -13,7 +13,7 @@ class MainControllerTest extends TestCase
         $obj = new Transaction();
         $obj->fromJSON('{"bin":"45717360","amount":"100.00","currency":"EUR"}');
         $this->assertEquals($obj->bin, "45717360");
-        $this->assertEquals($obj->amount, "100.00");
-        $this->assertEquals($obj->currency, "EUR");
+        $this->assertEquals($obj->money->getAmount(), "100.00");
+        $this->assertEquals($obj->money->getCurrency(), "EUR");
     }
 }

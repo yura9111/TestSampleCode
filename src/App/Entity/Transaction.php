@@ -2,11 +2,15 @@
 
 namespace App\Entity;
 
+use Maba\Component\Monetary\Money;
+
 class Transaction
 {
     public $bin;
-    public $amount;
-    public $currency;
+    /**
+     * @var Money
+     */
+    public $money;
 
     function fromJSON(String $json)
     {
@@ -14,12 +18,16 @@ class Transaction
         if ($obj == null) {
             throw new \Exception("can't decode Transaction entity from JSON");
         }
-        foreach ($this as $key => $val) {
-            if (isset($obj->$key)) {
-                $this->$key = $obj->$key;
-            } else {
-                throw new \Exception("$key is missing for transaction json");
-            }
+        if (!isset($obj->bin)) {
+            throw new \Exception("bin is missing for transaction json");
         }
+        if (!isset($obj->amount)) {
+            throw new \Exception("amount is missing for transaction json");
+        }
+        if (!isset($obj->currency)) {
+            throw new \Exception("currency is missing for transaction json");
+        }
+        $this->bin = $obj->bin;
+        $this->money = new Money($obj->amount, $obj->currency);
     }
 }

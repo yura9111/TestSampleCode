@@ -5,6 +5,14 @@ namespace App\Service;
 use App\Entity\Transaction;
 use App\Provider\BinProviderInterface;
 use App\Provider\RatesProviderInterface;
+use Maba\Component\Math\BcMath;
+use Maba\Component\Math\Math;
+use Maba\Component\Math\NumberValidator;
+use Maba\Component\Monetary\Factory\MoneyFactory;
+use Maba\Component\Monetary\Information\MoneyInformationProvider;
+use Maba\Component\Monetary\Money;
+use Maba\Component\Monetary\MoneyCalculator;
+use Maba\Component\Monetary\Validation\MoneyValidator;
 
 class Commission implements CommissionInterface
 {
@@ -17,17 +25,21 @@ class Commission implements CommissionInterface
         $this->ratesProvider = $ratesProvider;
     }
 
-    function getCommission(Transaction $transaction): float
+    function getCommission(Transaction $transaction): Money
     {
         $isEu = $this->binProvider->isEu($transaction->bin);
 
-        $rate = $this->ratesProvider->get($transaction->currency);
+        $rate = $this->ratesProvider->get($transaction->money->getCurrency());
 
-        $commission = $transaction->amount;
+        $math = new Math(new BcMath());
+        $informationProvider = new MoneyInformationProvider();
+        $factory = new MoneyFactory($math, new MoneyValidator($math, $informationProvider, new NumberValidator()));
+        $calculator = new MoneyCalculator($math, $factory, $informationProvider);
+        $commission = $transaction->money;
         if ($rate > 0) {
-            $commission = $transaction->amount / $rate;
+            $commission = $calculator->div($transaction->money, $rate);
         }
-
-        return $commission * ($isEu ? 0.01 : 0.02);
+        $commission = new Money($commission->getAmount(), "EUR");
+        return $calculator->mul($commission, $isEu ? 0.01 : 0.02);
     }
 }

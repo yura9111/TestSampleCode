@@ -7,6 +7,7 @@ use App\Entity\Transaction;
 use App\Provider\BinProvider;
 use App\Provider\RatesProvider;
 use App\Service\Commission;
+use Maba\Component\Monetary\Money;
 use PHPUnit\Framework\TestCase;
 
 class CommissionTest extends TestCase
@@ -15,8 +16,7 @@ class CommissionTest extends TestCase
     {
         $transaction = new Transaction();
         $transaction->bin = "12345";
-        $transaction->amount = "100";
-        $transaction->currency = "EUR";
+        $transaction->money = new Money("100", "EUR");
         $binProviderMock = $this->createMock(BinProvider::class);
         $ratesProviderMock = $this->createMock(RatesProvider::class);
         $binProviderMock->method("isEu")
@@ -24,15 +24,14 @@ class CommissionTest extends TestCase
         $ratesProviderMock->method("get")
             ->willReturn(0);
         $commision = new Commission($binProviderMock, $ratesProviderMock);
-        $this->assertEquals($commision->getCommission($transaction), 1);
+        $this->assertEquals($commision->getCommission($transaction)->getAmount(), 1);
     }
 
     public function testValidNoEUEuro()
     {
         $transaction = new Transaction();
         $transaction->bin = "12345";
-        $transaction->amount = "100";
-        $transaction->currency = "EUR";
+        $transaction->money = new Money("100", "EUR");
         $binProviderMock = $this->createMock(BinProvider::class);
         $ratesProviderMock = $this->createMock(RatesProvider::class);
         $binProviderMock->method("isEu")
@@ -40,15 +39,14 @@ class CommissionTest extends TestCase
         $ratesProviderMock->method("get")
             ->willReturn(0);
         $commision = new Commission($binProviderMock, $ratesProviderMock);
-        $this->assertEquals($commision->getCommission($transaction), 2);
+        $this->assertEquals($commision->getCommission($transaction)->getAmount(), 2);
     }
 
     public function testValidEUUSD()
     {
         $transaction = new Transaction();
         $transaction->bin = "12345";
-        $transaction->amount = "100";
-        $transaction->currency = "EUR";
+        $transaction->money = new Money("100", "EUR");
         $binProviderMock = $this->createMock(BinProvider::class);
         $ratesProviderMock = $this->createMock(RatesProvider::class);
         $binProviderMock->method("isEu")
@@ -56,15 +54,14 @@ class CommissionTest extends TestCase
         $ratesProviderMock->method("get")
             ->willReturn(1);
         $commision = new Commission($binProviderMock, $ratesProviderMock);
-        $this->assertEquals($commision->getCommission($transaction), 1);
+        $this->assertEquals($commision->getCommission($transaction)->getAmount(), 1);
     }
 
     public function testValidNoEuUSD()
     {
         $transaction = new Transaction();
         $transaction->bin = "12345";
-        $transaction->amount = "100";
-        $transaction->currency = "EUR";
+        $transaction->money = new Money("100", "EUR");
         $binProviderMock = $this->createMock(BinProvider::class);
         $ratesProviderMock = $this->createMock(RatesProvider::class);
         $binProviderMock->method("isEu")
@@ -72,6 +69,6 @@ class CommissionTest extends TestCase
         $ratesProviderMock->method("get")
             ->willReturn(1);
         $commision = new Commission($binProviderMock, $ratesProviderMock);
-        $this->assertEquals($commision->getCommission($transaction), 2);
+        $this->assertEquals($commision->getCommission($transaction)->getAmount(), 2);
     }
 }
