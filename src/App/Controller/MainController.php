@@ -6,6 +6,7 @@ use App\Parser\ParserTXT;
 use App\Provider\BinProvider;
 use App\Provider\RatesProvider;
 use App\Service\Commission;
+use App\Tools\Format;
 use App\Tools\JSONLoader;
 
 class MainController
@@ -14,7 +15,7 @@ class MainController
     {
         $commissionService = new Commission(new BinProvider(new JSONLoader()), new RatesProvider(new JSONLoader()));
 
-        $parser = new ParserTXT();
+        $parser = new ParserTXT(new Format());
         $parser->parse($fileName, $commissionService);
     }
 }
